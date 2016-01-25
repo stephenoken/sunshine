@@ -1,13 +1,20 @@
 package com.zooop.sunshine;
 
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,6 +54,60 @@ public class MainActivityFragment extends Fragment {
         View rootView =  inflater.inflate(R.layout.fragment_main, container, false);
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(mForecastAdapter);
+
+
+        //Will contain the JSON response
+        String forecastJsonStr = getWeatherData();
+
         return rootView;
+    }
+
+    public String getWeatherData() {
+        // These two need to be declared outside the try/catch
+        // so that they can be closed in the finally block.
+        HttpURLConnection urlConnection = null;
+        BufferedReader reader = null;
+        try {
+            String baseUrl = "http://api.openweathermap.org/data/2.5/find?q=London&units=metric";
+            String apiKey = "&APPID=" + BuildConfig.OPEN_WEATHER_MAP_API_KEY;
+            URL url = new URL(baseUrl.concat(apiKey));
+
+            //Create request to OpenWeatherMap, and then open the connection
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            //Read the input stream into a string
+            InputStream inputStream = urlConnection.getInputStream();
+            StringBuffer buffer = new StringBuffer();
+            if (inputStream == null)
+                return null;
+            reader = new BufferedReader(new InputStreamReader(inputStream));
+            String line;
+            //Not Necessary
+            while ((line = reader.readLine()) != null) {
+                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                // But it does make debugging a *lot* easier if you print out the completed
+                // buffer for debug
+                buffer.append(line + "\n");
+            }
+            if (buffer.length() == 0)
+                return null;//Stream was empty
+            return buffer.toString();
+        } catch (IOException e) {
+            Log.e("MainActivityFragment", "Error", e);
+            return "Error";
+        }finally {
+            if(urlConnection !=null)
+                urlConnection.disconnect();
+            if (reader !=null) {
+                try {
+                    reader.close();
+                } catch (final IOException e) {
+                    Log.e("PlaceholderFragment", "Error closing stream", e);
+                }
+            }
+        }
+
     }
 }
