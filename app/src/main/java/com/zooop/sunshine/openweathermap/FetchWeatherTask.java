@@ -1,5 +1,6 @@
 package com.zooop.sunshine.openweathermap;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -15,24 +16,47 @@ import java.net.URL;
 /**
  * Created by stephenokennedy on 25/01/2016.
  */
-public class FetchWeatherTask extends AsyncTask<Void,Void,String>{
+public class FetchWeatherTask extends AsyncTask<String,Void,String>{
 
     private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
     @Override
-    protected String doInBackground(Void... params) {
-        return getWeatherData();
+    protected String doInBackground(String... params) {
+        return getWeatherData(params);
     }
 
-    public String getWeatherData() {
+    public String getWeatherData(String[] params) {
+        //If there's no zip code, there's nothing to do.
+        // TODO: 26/01/2016 Will need to change this coordinates
+        if (params.length == 0)
+            return null;
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
-        try {
-            String baseUrl = "http://api.openweathermap.org/data/2.5/find?q=London&units=metric";
-            String apiKey = "&APPID=" + BuildConfig.OPEN_WEATHER_MAP_API_KEY;
-            URL url = new URL(baseUrl.concat(apiKey));
 
+        String format ="json";
+        String units ="metric";
+        int numDays = 7;
+        try {
+//            String baseUrl = "http://api.openweathermap.org/data/2.5/find?q=London&units=metric";
+//            String apiKey = "&APPID=" + BuildConfig.OPEN_WEATHER_MAP_API_KEY;
+//            URL url = new URL(baseUrl.concat(apiKey));
+
+            final String FORECAST_BASE_URL = "http://api.openweathermap.org/data/2.5/forecast/daily?";
+            final String QUERY_PARAM = "q";
+            final String FORMAT_PARAM = "mode";
+            final String UNITS_PARAM = "units";
+            final String DAYS_PARAM = "cnt";
+            final String APPID_PARAM = "appid";
+            Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
+                    .appendQueryParameter(QUERY_PARAM,params[0])
+                    .appendQueryParameter(FORECAST_BASE_URL,format)
+                    .appendQueryParameter(UNITS_PARAM,units)
+                    .appendQueryParameter(DAYS_PARAM,Integer.toString(numDays))
+                    .appendQueryParameter(APPID_PARAM,BuildConfig.OPEN_WEATHER_MAP_API_KEY)
+                    .build();
+
+            URL url = new URL(builtUri.toString());
             //Create request to OpenWeatherMap, and then open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
