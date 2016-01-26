@@ -20,8 +20,6 @@ public class FetchWeatherTask extends AsyncTask<Void,Void,String>{
     private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
     @Override
     protected String doInBackground(Void... params) {
-
-        String forecastJsonStr = getWeatherData();
         return getWeatherData();
     }
 
