@@ -58,7 +58,7 @@ public class FetchWeatherTask extends AsyncTask<Void,Void,String>{
                 return null;//Stream was empty
             return buffer.toString();
         } catch (IOException e) {
-            Log.e("MainActivityFragment", "Error", e);
+            Log.e("ForecastFragment", "Error", e);
             return "Error";
         }finally {
             if(urlConnection !=null)

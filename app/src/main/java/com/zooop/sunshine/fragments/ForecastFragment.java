@@ -1,4 +1,4 @@
-package com.zooop.sunshine;
+package com.zooop.sunshine.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.zooop.sunshine.R;
 import com.zooop.sunshine.openweathermap.FetchWeatherTask;
 
 import java.io.BufferedReader;
@@ -24,9 +25,9 @@ import java.util.List;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment {
+public class ForecastFragment extends Fragment {
 
-    public MainActivityFragment() {
+    public ForecastFragment() {
     }
 
     @Override
