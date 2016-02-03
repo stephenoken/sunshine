@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.text.format.Time;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 
 import com.zooop.sunshine.BuildConfig;
 
@@ -23,7 +24,11 @@ import java.text.SimpleDateFormat;
  * Created by stephenokennedy on 25/01/2016.
  */
 public class FetchWeatherTask extends AsyncTask<String,Void,String[]>{
+    private ArrayAdapter<String> mForecastAdapter;
 
+    public FetchWeatherTask(ArrayAdapter<String> mForecastAdapter){
+        this.mForecastAdapter = mForecastAdapter;
+    }
     private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
     /*
@@ -190,5 +195,16 @@ public class FetchWeatherTask extends AsyncTask<String,Void,String[]>{
             }
         }
 
+    }
+
+    @Override
+    protected void onPostExecute(String[] results) {
+        if (results != null){
+            mForecastAdapter.clear();
+            for (String dayForecatStr: results) {
+                mForecastAdapter.add(dayForecatStr);
+            }
+            //New data from the server Whoop!!!
+        }
     }
 }

@@ -22,6 +22,7 @@ import java.util.List;
  * A placeholder fragment containing a simple view.
  */
 public class ForecastFragment extends Fragment {
+    public ArrayAdapter<String>  mForecastAdapter;
 
     @Override
     public void onCreate(Bundle savedInstance){
@@ -40,7 +41,7 @@ public class ForecastFragment extends Fragment {
         //Handle action bar item clicks here
         int id = item.getItemId();
         if (id == R.id.action_refresh){
-            FetchWeatherTask weatherTask = new FetchWeatherTask();
+            FetchWeatherTask weatherTask = new FetchWeatherTask(mForecastAdapter);
             weatherTask.execute("94043");
             return true;
         }
@@ -63,7 +64,7 @@ public class ForecastFragment extends Fragment {
         // Now that we have some dummy forecast data, create an ArrayAdapter.
         // The ArrayAdapter will take data from a source (like our dummy forecast) and
         // use it to populate the ListView it's attached to.
-        ArrayAdapter<String>  mForecastAdapter = new ArrayAdapter<String>(
+        mForecastAdapter = new ArrayAdapter<String>(
                 getActivity(),
                 R.layout.list_item_forecast,
                 R.id.list_item_forecast_textview,
