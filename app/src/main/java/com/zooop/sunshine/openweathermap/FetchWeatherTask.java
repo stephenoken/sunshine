@@ -105,9 +105,6 @@ public class FetchWeatherTask extends AsyncTask<String,Void,String[]>{
             highAndLow = formatHighLows(high,low);
             resultStrs[i] = day + " - " + desciption + " - " + highAndLow;
         }
-        for (String s : resultStrs) {
-            Log.v(LOG_TAG, "Forecast entry: " + s);
-        }
         return resultStrs;
     }
     @Override
@@ -171,7 +168,6 @@ public class FetchWeatherTask extends AsyncTask<String,Void,String[]>{
             if (buffer.length() == 0)
                 return null;//Stream was empty
             forecastJsonStr =  buffer.toString();
-            Log.v(LOG_TAG, "Forecast string: " + forecastJsonStr);
 
             try {
                 return getWeatherDataFromJson(forecastJsonStr,numDays);
