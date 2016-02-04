@@ -1,12 +1,16 @@
 package com.zooop.sunshine.openweathermap;
 
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
 import android.text.format.Time;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
 import com.zooop.sunshine.BuildConfig;
+import com.zooop.sunshine.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,9 +29,10 @@ import java.text.SimpleDateFormat;
  */
 public class FetchWeatherTask extends AsyncTask<String,Void,String[]>{
     private ArrayAdapter<String> mForecastAdapter;
-
-    public FetchWeatherTask(ArrayAdapter<String> mForecastAdapter){
+    private FragmentActivity mFragment;
+    public FetchWeatherTask(ArrayAdapter<String> mForecastAdapter, FragmentActivity mFragment){
         this.mForecastAdapter = mForecastAdapter;
+        this.mFragment = mFragment;
     }
     private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
@@ -44,7 +49,13 @@ public class FetchWeatherTask extends AsyncTask<String,Void,String[]>{
     /*
         Prepare the weather high/lows for presentation
      */
-    private String formatHighLows(double high,double low){
+    private String formatHighLows(double high,double low,String unitType){
+        if (unitType.equals(mFragment.getString(R.string.pref_units_imperial))){
+            high = (high * 1.8)+32;
+            low = (low*1.8)+32;
+        } else if (!unitType.equals(mFragment.getString(R.string.pref_units_metric)))
+            Log.d(LOG_TAG, "Unit type not found: " + unitType);
+
         long roundedHigh = Math.round(high);
         long roundedLow = Math.round(low);
         String highLowStr = roundedHigh + "/" + roundedLow;
@@ -86,6 +97,10 @@ public class FetchWeatherTask extends AsyncTask<String,Void,String[]>{
         dayTime = new Time();
 
         String[] resultStrs = new String[numDays];
+        //Data is celsius by default
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.mFragment.getBaseContext());
+        String unitType = sharedPreferences.getString(this.mFragment.getString(R.string.pref_units_key),
+                this.mFragment.getString(R.string.pref_units_metric));
         for (int i = 0; i < weatherArray.length(); i++) {
             String day;
             String desciption;
@@ -102,7 +117,7 @@ public class FetchWeatherTask extends AsyncTask<String,Void,String[]>{
             double high = temperatureObject.getDouble(OWM_MAX);
             double low = temperatureObject.getDouble(OWM_MIN);
 
-            highAndLow = formatHighLows(high,low);
+            highAndLow = formatHighLows(high,low,unitType);
             resultStrs[i] = day + " - " + desciption + " - " + highAndLow;
         }
         return resultStrs;
@@ -113,8 +128,6 @@ public class FetchWeatherTask extends AsyncTask<String,Void,String[]>{
     }
 
     public String[] getWeatherData(String[] params) {
-        //If there's no zip code, there's nothing to do.
-        // TODO: 26/01/2016 Will need to change this coordinates
         if (params.length == 0)
             return null;
         // These two need to be declared outside the try/catch
